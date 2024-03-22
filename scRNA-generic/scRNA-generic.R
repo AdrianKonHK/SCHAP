@@ -14,37 +14,50 @@ heatmap_width = as.numeric(commandArgs(trailingOnly = TRUE)[6])
 heatmap_height = as.numeric(commandArgs(trailingOnly = TRUE)[7])
 bubble_width = as.numeric(commandArgs(trailingOnly = TRUE)[8])
 bubble_height = as.numeric(commandArgs(trailingOnly = TRUE)[9])
+is_rds = commandArgs(trailingOnly = TRUE)[10]
 
 print(Immu_Rdata_path)
 print(RNA_Rdata_path)
 print(species)
 
+if(!is.null(is_rds)){
+    # rds seurat object
+    samples=list.files("../input/",'.rds')
+    print(samples)
+    gsmList = lapply(samples,function(pro){
+    file=paste("../input/",pro,sep="")
+    gsm = readRDS(file)
+    return(gsm)
+    })
+    samplesid=str_split(samples,'.rds',simplify = T)[,1]
+    names(gsmList)=samplesid
+    names(gsmList)
+}else{
+    # 10X Standard
+    samples=list.dirs("../input/",full.names=F,recursive=F)
+    print(samples)
+    gsmList = lapply(samples,function(pro){
+        folder=file.path(dir ,pro)
+        print(folder)
+        print(pro)
+        gsm.data = Read10X(folder)
+    if (typeof(gsm.data) == 'list'){
+     gsm=CreateSeuratObject(counts = gsm.data$'Gene Expression',
+                            project =  pro ,
+                            min.cells = 5,
+                            min.features = 300) 
+     }else if (typeof(gsm.data) == 'S4'){
+        gsm=CreateSeuratObject(counts = gsm.data,
+                            project =  pro ,
+                            min.cells = 5,
+                            min.features = 300) 
+    }
+    return(gsm)
+    })
+    names(gsmList)=samples
+    names(gsmList)
+}
 
-samples=list.dirs("../input/",full.names=F,recursive=F)
-print(samples)
-
-gsmList = lapply(samples,function(pro){
-  folder=file.path(dir ,pro)
-
-  print(folder)
-  print(pro)
-  gsm.data = Read10X(folder)
-  if (typeof(gsm.data) == 'list'){
-  gsm=CreateSeuratObject(counts = gsm.data$'Gene Expression',
-                         project =  pro ,
-                         min.cells = 5,
-                         min.features = 300) 
-  }else if (typeof(gsm.data) == 'S4'){
-  gsm=CreateSeuratObject(counts = gsm.data,
-                         project =  pro ,
-                         min.cells = 5,
-                         min.features = 300) 
-  }
-  return(gsm)
-})
-
-names(gsmList)=samples
-names(gsmList)
 ######################################################
 if (length(gsmList) != 1){
 for (i in 1:length(gsmList)) {
