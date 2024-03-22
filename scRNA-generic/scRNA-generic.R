@@ -22,7 +22,7 @@ print(species)
 
 if(!is.null(is_rds)){
     # rds seurat object
-    samples=list.files("../input/",'.rds')
+    samples=list.files(dir,'.rds')
     print(samples)
     gsmList = lapply(samples,function(pro){
     file=paste(dir,pro,sep="")
@@ -34,7 +34,7 @@ if(!is.null(is_rds)){
     names(gsmList)
 }else{
     # 10X Standard
-    samples=list.dirs("../input/",full.names=F,recursive=F)
+    samples=list.dirs(dir,full.names=F,recursive=F)
     print(samples)
     gsmList = lapply(samples,function(pro){
         folder=file.path(dir ,pro)
