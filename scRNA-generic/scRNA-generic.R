@@ -25,7 +25,7 @@ if(!is.null(is_rds)){
     samples=list.files("../input/",'.rds')
     print(samples)
     gsmList = lapply(samples,function(pro){
-    file=paste("../input/",pro,sep="")
+    file=paste(dir,pro,sep="")
     gsm = readRDS(file)
     return(gsm)
     })
